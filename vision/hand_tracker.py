@@ -40,6 +40,24 @@ structured landmark output along with optional debug visualization.
 
             cv2.putText(frame,f"FPS: {int(fps)}",(10,30),cv2.FONT_HERSHEY_SIMPLEX,0.8,(0,255,0),2)
 
+        def process_frame(self)-> Dict[str,optional[List[Tuple[float,float,float]]]]:
+            """
+            Capture and process a single frame. 
+            Returns: 
+            {"detected":bool,
+            "landmarks": List[(x,y,z)] or None,
+            "hand_label": "Right" or None
+            }
+            """
+            success,frame = self.cap.read()
+            if not success:
+                 return {"detected": False,"landmarks":None,"hand_label":None}
+            frame = cv2.flip(frame,1) # Mirror view
+            rgb_frame = cv2.cvtColor(frame,cv2.COLOUR_BGR2RGB)
+            results = self.hands.process(rgb_frame)
+            right_hand_landmarks =None
+
+
 
 
 
