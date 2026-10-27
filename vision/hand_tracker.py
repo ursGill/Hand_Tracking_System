@@ -10,15 +10,26 @@ class HandTracker:
 Detects RIGHT hand landmarks using MediaPipe and provides
 structured landmark output along with optional debug visualization.
 """
-    def __init__(self,max_num_hands:int=2,detection_confidence: float=0.7,tracking_confidence:float=0.7,enable_visualization:bool=True)->None:
+    def __init__(self,max_num_hands:int=2,detection_confidence: float=0.7,tracking_confidence:float=0.7,model_complexity:int=1,enable_visualization:bool=True)->None:
         self.enable_visualization =enable_visualization
         self.cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)  # starts webcam capture
+        
+        # Set high resolution for wide area capturing and better accuracy at a distance
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+        
         if not self.cap.isOpened():
             raise RuntimeError("Failed to Open Webcam.")
         self.mp_hands =mp.solutions.hands  #Load ML tracking model
         self.mp_draw =mp.solutions.drawing_utils #Loads helper to draw skeleton
 
-        self.hands = self.mp_hands.Hands(max_num_hands=max_num_hands,min_detection_confidence=detection_confidence,min_tracking_confidence=tracking_confidence)   #Initialize Hand ML Model
+        self.hands = self.mp_hands.Hands(
+            static_image_mode=False,
+            max_num_hands=max_num_hands,
+            model_complexity=model_complexity,
+            min_detection_confidence=detection_confidence,
+            min_tracking_confidence=tracking_confidence
+        )   #Initialize Hand ML Model
 
         self.prev_time = 0.0
 
